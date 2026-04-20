@@ -53,8 +53,8 @@ async def connect_ais_stream():
                 message = json.loads(message_json)
                 message_type = message["MessageType"]
 
-                # ais_message = message['Message']['PositionReport']
-                # print(f"[{datetime.now(timezone.utc)}] ShipId: {ais_message['UserID']} Latitude: {ais_message['Latitude']} Longitude: {ais_message['Longitude']}")
+                ais_message = message['Message']['PositionReport']
+                print(f"[{datetime.now(timezone.utc)}] ShipId: {ais_message['UserID']} Latitude: {ais_message['Latitude']} Longitude: {ais_message['Longitude']}")
 
                 if message_type == "PositionReport":
                     position_report = get_postion_report_from_message(message)
