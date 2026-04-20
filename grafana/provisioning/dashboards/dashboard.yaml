@@ -1,0 +1,9 @@
+apiVersion: 1
+
+providers:
+  - name: default
+    folder: AIS
+    type: file
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards

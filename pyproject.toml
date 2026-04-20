@@ -1,0 +1,19 @@
+[project]
+name = "data-engineering-zoomcamp-project-2026"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "aiokafka>=0.13.0",
+    "apache-airflow>=3.2.0",
+    "astronomer-cosmos>=1.14.0",
+    "dbt-clickhouse>=1.10.0",
+    "kafka-python>=2.3.1",
+    "websockets>=16.0",
+]
+
+[dependency-groups]
+dev = [
+    "jupyter>=1.1.1",
+]

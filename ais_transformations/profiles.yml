@@ -1,0 +1,10 @@
+ais_transformations:
+  target: dev
+  outputs:
+    dev:
+      type: clickhouse
+      host: localhost
+      port: 8123
+      user: "{{ env_var('CLICKHOUSE_USER', 'user') }}"
+      password: "{{ env_var('CLICKHOUSE_PASSWORD', 'password') }}"
+      schema: ais_db

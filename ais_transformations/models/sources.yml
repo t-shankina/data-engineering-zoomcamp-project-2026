@@ -1,0 +1,76 @@
+# models/sources.yml
+version: 2
+
+sources:
+  - name: ais_db
+    database: ais_db
+    tables:
+      - name: position_reports
+        description: "Raw AIS position reports consumed from Redpanda topic"
+        columns:
+          - name: produced_at
+            description: "Timestamp when message was produced to topic"
+            tests:
+              - not_null
+          - name: consumed_at
+            description: "Timestamp when message was consumed from topic"
+            tests:
+              - not_null
+          - name: message_id
+            description: "ITU-R M.1371 message type (1, 2, or 3)"
+            tests:
+              - not_null
+              - accepted_values:
+                  values: [1, 2, 3]
+          - name: user_id
+            description: "MMSI — unique 9-digit vessel identifier"
+            tests:
+              - not_null
+          - name: longitude
+            description: "Longitude in degrees (East/West)"
+            tests:
+              - not_null
+          - name: latitude
+            description: "Latitude in degrees (North/South)"
+            tests:
+              - not_null
+          - name: position_accuracy
+            description: "True = High (<10m, DGPS), False = Low (>10m, GPS)"
+            tests:
+              - not_null
+          - name: raim
+            description: "True = RAIM in use, False = not in use"
+            tests:
+              - not_null
+          - name: timestamp
+            description: "UTC second (0-59). 60=not available, 61=manual, 62=dead reckoning, 63=inoperative"
+            tests:
+              - not_null
+          - name: cog
+            description: "Course Over Ground in degrees (0-359.9). 360 = not available"
+            tests:
+              - not_null
+          - name: sog
+            description: "Speed Over Ground in knots (0-102.2). 102.3 = not available"
+            tests:
+              - not_null
+          - name: true_heading
+            description: "Heading of the bow in degrees true north (0-359). 511 = not available"
+            tests:
+              - not_null
+          - name: rate_of_turn
+            description: "Rate of turn in degrees/min. +127=right, -127=left, -128=not available"
+            tests:
+              - not_null
+          - name: navigational_status
+            description: "0=under way, 1=at anchor, 2=not under command, 3=restricted, etc."
+            tests:
+              - not_null
+              - accepted_values:
+                  values: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+          - name: special_manoeuvre_indicator
+            description: "0=not available, 1=not engaged, 2=engaged in special manoeuvre"
+            tests:
+              - not_null
+              - accepted_values:
+                  values: [0, 1, 2]
