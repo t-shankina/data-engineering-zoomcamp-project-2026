@@ -1,5 +1,44 @@
 # AIS Data Analytics - Quick Start
 
+## Prerequisites
+
+Before starting, ensure you have the following installed and configured:
+
+### Required Software
+
+- **Docker** (20.10+) and **Docker Compose** (2.0+)
+  - Required for running all services (ClickHouse, Airflow, Grafana, Redpanda)
+- **Python** (3.10+)
+  - Required for producer and dbt transformations
+- **uv** (Python package manager)
+  - Install: `pip install uv` or `curl -LsSf https://astral.sh/uv/install.sh | sh`
+- **make**
+  - Required for using Makefile commands
+  - Usually pre-installed on Linux/macOS, install via package manager on Windows
+
+### API Access
+
+- **AIS Stream API Key**
+  - Register at [aisstream.io](https://aisstream.io) and get your API key
+  - Required for receiving real-time AIS data
+
+### System Requirements
+
+- **Minimum 8GB RAM**
+  - Required for running Docker containers
+- **Free disk space: ~10GB**
+  - For Docker images and data storage
+- **Available ports:**
+  - `8080` - Airflow web UI
+  - `8123` - ClickHouse HTTP API
+  - `9092` - Redpanda/Kafka
+  - `3000` - Grafana web UI
+
+### Network
+
+- **Internet connection**
+  - Required for pulling Docker images and streaming AIS data
+
 ## Step-by-Step Setup
 
 ### 0. Create `.env` file
@@ -86,11 +125,11 @@ Checks:
 - ClickHouse connection
 - Number of records in `position_reports` table
 
-### 6. Run dbt
+### 6. Run dbt (Optional)
 
 ```bash
 cd ais_transformations
-dbt run
+uv run dbt run
 ```
 
 Or:
