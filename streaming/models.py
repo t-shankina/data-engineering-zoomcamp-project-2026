@@ -48,19 +48,3 @@ def position_report_serializer(position_report):
     position_report_dict['produced_at'] = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S.%f')
     json_str = json.dumps(position_report_dict)
     return json_str.encode('utf-8')
-
-
-# def position_report_deserializer(data):
-#     json_str = data.decode('utf-8')
-#     position_report_dict = json.loads(json_str)
-#     return PositionReport(**position_report_dict)
-
-
-# def position_report_deserializer(data):
-#     json_str = data.decode('utf-8')
-#     position_report_dict = json.loads(json_str)
-    
-#     valid_fields = {f.name for f in dataclasses.fields(PositionReport)}
-#     filtered_dict = {k: v for k, v in position_report_dict.items() if k in valid_fields}
-    
-#     return PositionReport(**filtered_dict)

@@ -1,6 +1,19 @@
+<!-- badges -->
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![Kafka](https://img.shields.io/badge/Redpanda-v25.3-231F20?logo=apachekafka&logoColor=white)
+![ClickHouse](https://img.shields.io/badge/ClickHouse-26.2-E25A1C?logo=apachespark&logoColor=white)
+![dbt](https://img.shields.io/badge/dbt-clickhouse-1.10-FF694B?logo=dbt&logoColor=white)
+![Airflow](https://img.shields.io/badge/Apache_Airflow-3.2-017CEE?logo=apacheairflow&logoColor=white)
+![Grafana](https://img.shields.io/badge/Grafana-Dashboard-4285F4?logo=looker&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Compose_v2-2496ED?logo=docker&logoColor=white)
+
 # AIS Data Analytics Pipeline
 
-> **Real-time vessel tracking and analytics**
+**DataTalksClub Data Engineering Zoomcamp — Final Project**
+
+A batch + streaming data pipeline that ingests AIS data stream into ClickHouse, transforms it and provides near real-time metrics in Grafana dashboard.
+
+---
 
 ## Table of Contents
 
@@ -26,7 +39,7 @@
 
 ### What is AIS Data?
 
-AIS transponders on vessels automatically broadcast message at regular intervals via a VHF transmitter built into the transceiver. These messages are transmitted every 2-10 seconds for ships in motion and every 3 minutes for ships at anchor, creating a continuous stream of high-frequency positional data.
+AIS transponders on vessels automatically broadcast messages at regular intervals via a VHF transmitter built into the transceiver. These messages are transmitted every 2-10 seconds for ships in motion and every 3 minutes for ships at anchor, creating a continuous stream of high-frequency positional data.
 
 ### Why Analyze AIS Data?
 
@@ -55,8 +68,6 @@ AIS data enables powerful insights across multiple domains:
 - Economic activity indicators (trade flows)
 - Behavioral analysis of different vessel types
 - Machine learning models for anomaly detection
-
-This project demonstrates a data pipeline that ingests real-time AIS messages, stores them efficiently, transforms them into analytical models, and visualizes insights through interactive dashboards.
 
 ---
 
@@ -124,6 +135,11 @@ The pipeline follows a modern streaming data architecture with the following com
 
 ### Key Design Decisions
 
+**Why Redpanda?**
+- Kafka-compatible, but simpler to deploy (no ZooKeeper)
+- Lower resource footprint (perfect for local development)
+- Wire-compatible with Kafka clients
+
 **Why ClickHouse?**
 - Optimized for analytical queries (OLAP)
 - Native Kafka integration via Kafka Engine
@@ -131,16 +147,17 @@ The pipeline follows a modern streaming data architecture with the following com
 - Fast aggregation queries for dashboards
 - Partitioning by month enables efficient data lifecycle management (TTL)
 
-**Why Redpanda?**
-- Kafka-compatible, but simpler to deploy (no ZooKeeper)
-- Lower resource footprint (perfect for local development)
-- Wire-compatible with Kafka clients
-
 **Why dbt?**
 - SQL-based transformations (familiar to analysts)
 - Incremental models minimize reprocessing
 - Built-in testing and documentation
 - Version control for transformation logic
+
+**Why Airflow?**
+- Industry-standard orchestration tool
+- Rich UI for monitoring and debugging
+- Extensible (custom operators for dbt, sensors, etc.)
+- Handles retries, alerting, and dependency management
 
 ---
 
@@ -148,17 +165,16 @@ The pipeline follows a modern streaming data architecture with the following com
 
 ### Cloud & Infrastructure
 
-**Infrastructure as Code:**
-- **Docker Compose** for local infrastructure provisioning
+**Technology:** Infrastructure as Code
+
+**Components:**
+1. **Docker Compose**
 - All services defined declaratively in `docker-compose.yml`
 - Environment variables managed via `.env` file
-- Automated initialization scripts for databases and topics
 
 **Note:** While this project runs locally for development, it follows cloud-native patterns and can be easily adapted to cloud deployment using managed services
 
 ### Data Ingestion
-
-**Stream Processing Pipeline:**
 
 **Technology:** Real-time streaming with WebSocket → Kafka → ClickHouse
 
@@ -180,12 +196,6 @@ The pipeline follows a modern streaming data architecture with the following com
    - Near real-time ingestion (sub-second latency)
    - Automatic deduplication via `ReplacingMergeTree`
 
-**Key Features:**
-- **High throughput:** Handles thousands of messages per second
-- **Fault tolerance:** Kafka retains messages if ClickHouse is temporarily down
-- **Exactly-once semantics:** ClickHouse consumer tracks Kafka offsets
-- **Backpressure handling:** Kafka buffers messages during peak loads
-
 ### Data Warehouse
 
 **Technology:** ClickHouse (OLAP database)
@@ -195,9 +205,9 @@ The pipeline follows a modern streaming data architecture with the following com
 ```sql
 position_reports
 ├── ENGINE: ReplacingMergeTree(consumed_at)
-├── PARTITION BY: toYYYYMM(produced_at)    -- Monthly partitions
-├── ORDER BY: (user_id, produced_at)       -- Clustered for queries
-└── TTL: produced_at + 1 YEAR              -- Auto-delete old data
+├── PARTITION BY: toYYYYMM(produced_at)
+├── ORDER BY: (user_id, produced_at)
+└── TTL: produced_at + 1 YEAR
 ```
 
 **Optimization Strategies:**
@@ -205,14 +215,13 @@ position_reports
 1. **Partitioning:**
    - Monthly partitions by `produced_at` timestamp
    - Enables efficient data pruning for time-range queries
-   - Old partitions can be dropped instantly (TTL)
+   - Auto-deletea old data on TTL
    - Supports parallel query execution across partitions
 
 2. **Clustering:**
    - Ordered by `(user_id, produced_at)`
    - Co-locates data for the same vessel (optimizes vessel tracking queries)
    - Secondary sort by time enables fast range scans
-   - Primary key acts as implicit index
 
 3. **Engine Selection:**
    - `ReplacingMergeTree` handles late-arriving duplicates
@@ -231,32 +240,23 @@ position_reports
 
 1. **Staging Layer** (`models/staging/`):
    - `stg_position_reports`: Cleaned and filtered source data
-   - Filters out invalid positions (lat/lon = 0 or out of range)
-   - Casts data types and applies business logic
-   - Materialized as view (no data duplication)
 
 2. **Marts Layer** (`models/marts/`):
    
    **a) `vessel_activity`** (incremental model):
    - Hourly aggregations per vessel (MMSI)
-   - Metrics: message count, avg/min/max speed
-   - Incremental strategy: `delete+insert` (replace recent hours)
-   - Partitioned by month, clustered by `user_id`
-   - Only processes last 2 hours on each run (efficient)
+   - Updated incrementally last 2 hours on each run (efficient)
    
    **b) `vessel_last_position`** (incremental model):
    - Latest known position for each vessel
-   - Uses `argMax` to get most recent record
-   - Enables "current location" queries
-   - Updated incrementally (last 2 hours)
+   - Updated incrementally last 2 hours on each run (efficient)
 
 ### Orchestration
 
 **Technology:** Apache Airflow (LocalExecutor)
 
-**Orchestration:** Airflow DAG runs `dbt run` every 15 minuter to refresh models.
+**Workflow:** Airflow DAG runs `dbt run` every 15 minuter to refresh models.
 
-**Workflow:**
 - **DAG:** `ais_dbt_transformations`
 - **Tasks:**
   1. `dbt_run`: Executes `dbt run` command
@@ -269,23 +269,15 @@ position_reports
 - Mounted volumes: DAGs folder + dbt project
 - Web UI at `http://localhost:8080`
 
-**Why Airflow?**
-- Industry-standard orchestration tool
-- Rich UI for monitoring and debugging
-- Extensible (custom operators for dbt, sensors, etc.)
-- Handles retries, alerting, and dependency management
-
 ### Visualization
 
 **Technology:** Grafana
 
 **Data Source:** ClickHouse (direct SQL queries)
 
----
-
-## Dashboard
-
-The Grafana dashboard provides near real-time insights into maritime traffic patterns
+**Dashboard panels:**
+   - Vessel Map (Geomap)
+   - Vessel Status (Pie chart)
 
 ---
 
@@ -301,7 +293,7 @@ The Grafana dashboard provides near real-time insights into maritime traffic pat
 │
 ├── streaming/                      # Data ingestion
 │   ├── producer.py                 # WebSocket → Kafka producer
-│   ├── models.py                   # Pydantic data models
+│   ├── models.py                   # Python dataclasses
 │   └── requirements.txt            # Python dependencies
 │
 ├── clickhouse/
@@ -351,4 +343,3 @@ Built for the [DataTalksClub Data Engineering Zoomcamp](https://github.com/DataT
 - **DataTalksClub** for organizing the Data Engineering Zoomcamp
 - **AISStream.io** for providing free real-time AIS data access
 - Open-source community for amazing tools (ClickHouse, Airflow, dbt, Grafana)
-

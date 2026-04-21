@@ -11,10 +11,9 @@ Before starting, ensure you have the following installed and configured:
 - **Python** (3.10+)
   - Required for producer and dbt transformations
 - **uv** (Python package manager)
-  - Install: `pip install uv` or `curl -LsSf https://astral.sh/uv/install.sh | sh`
+  - Required for installing all listed dependencies
 - **make**
-  - Required for using Makefile commands
-  - Usually pre-installed on Linux/macOS, install via package manager on Windows
+  - Required for using Makefile commands (usually pre-installed on Linux/macOS, install via package manager on Windows)
 
 ### API Access
 
@@ -37,7 +36,7 @@ Before starting, ensure you have the following installed and configured:
 ### Network
 
 - **Internet connection**
-  - Required for pulling Docker images and streaming AIS data
+  - Required for pulling Docker images and dependencies, streaming AIS data
 
 ## Step-by-Step Setup
 
@@ -125,7 +124,7 @@ Checks:
 - ClickHouse connection
 - Number of records in `position_reports` table
 
-### 6. Run dbt (Optional)
+### 6. Run dbt (optional)
 
 ```bash
 cd ais_transformations
@@ -175,16 +174,23 @@ In Grafana:
 - Dashboard with AIS data visualization imported
 - Shows maps, traffic graphs, ship statistics
 
+### 9. Tear down
+
+1. Press Ctrl+C to stop producer
+
+2. Stop services, remove artifacts
+
+```bash
+make clean
+```
+
 ---
 
 ## Common Commands
 
 ```bash
 make help              # Show all available commands
-make status            # Show status of all services and ClickHouse data
-
-make down              # Stop all services and remove volumes
-make clean             # Stop services and remove volumes + clean dbt artifacts
+make status            # Show status of all services
 ```
 
 **Additional commands:**
@@ -212,31 +218,32 @@ make check-clickhouse
 
 - Producer not running → `make producer`
 - Invalid API key in `.env` → check `AISSTREAMIO_API_KEY`
-- Redpanda not running → chekc docker logs
+- Redpanda not running → `make status`
 
-### Restart services
+### Restart Docker containers
+
+1. Press Ctrl+C to stop producer
+
+2. Restart services
 
 ```bash
-# Press Ctrl+C to stop producer
-
 make down              # Stop all
 make up                # Start again
-make producer          # Start streaming messages again
 ```
 
-
-
-**Full reload with data cleanup:**
+Or full reload with data cleanup:
 
 ```bash
-# Press Ctrl+C to stop producer
-
 make clean             # Stop + clean artifacts
 make build             # Rebuild images (if needed)
 make up                # Start
 ```
 
+3. Start streaming messages again (in a new terminal)
 
+```bash
+make producer          # Start streaming messages again
+```
 
 ### Port conflicts
 
