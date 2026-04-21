@@ -99,7 +99,7 @@ Required for producer and dbt.
 NOTE: Run the command below in a new terminal:
 
 ```bash
-make producer
+ea
 ```
 
 *Press Ctrl+C to stop*
@@ -125,13 +125,6 @@ Checks:
 - Number of records in `position_reports` table
 
 ### 6. Run dbt (optional)
-
-```bash
-cd ais_transformations
-uv run dbt run
-```
-
-Or:
 
 ```bash
 make dbt-run
@@ -177,7 +170,6 @@ In Grafana:
 ### 9. Tear down
 
 1. Press Ctrl+C to stop producer
-
 2. Stop services, remove artifacts
 
 ```bash
@@ -223,7 +215,6 @@ make check-clickhouse
 ### Restart Docker containers
 
 1. Press Ctrl+C to stop producer
-
 2. Restart services
 
 ```bash
@@ -239,7 +230,7 @@ make build             # Rebuild images (if needed)
 make up                # Start
 ```
 
-3. Start streaming messages again (in a new terminal)
+1. Start streaming messages again (in a new terminal)
 
 ```bash
 make producer          # Start streaming messages again

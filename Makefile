@@ -110,7 +110,7 @@ check-clickhouse: ## Check ClickHouse data
 .PHONY: dbt-run
 dbt-run: ## Run dbt transformations
 	@printf "$(GREEN)Running dbt...$(NC)\n"
-	cd $(DBT_DIR) && uv run dbt run
+	cd $(DBT_DIR) && uv run dbt run && cd ..
 
 # ======================================================================
 #  AIRFLOW
