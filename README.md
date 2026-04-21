@@ -1,12 +1,3 @@
-<!-- badges -->
-![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
-![Kafka](https://img.shields.io/badge/Redpanda-v25.3-231F20?logo=apachekafka&logoColor=white)
-![ClickHouse](https://img.shields.io/badge/ClickHouse-26.2-E25A1C?logo=apachespark&logoColor=white)
-![dbt](https://img.shields.io/badge/dbt-clickhouse-1.10-FF694B?logo=dbt&logoColor=white)
-![Airflow](https://img.shields.io/badge/Apache_Airflow-3.2-017CEE?logo=apacheairflow&logoColor=white)
-![Grafana](https://img.shields.io/badge/Grafana-Dashboard-4285F4?logo=looker&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-Compose_v2-2496ED?logo=docker&logoColor=white)
-
 # AIS Data Analytics Pipeline
 
 **DataTalksClub Data Engineering Zoomcamp — Final Project**
@@ -169,8 +160,8 @@ The pipeline follows a modern streaming data architecture with the following com
 
 **Components:**
 1. **Docker Compose**
-- All services defined declaratively in `docker-compose.yml`
-- Environment variables managed via `.env` file
+   - All services defined declaratively in `docker-compose.yml`
+   - Environment variables managed via `.env` file
 
 **Note:** While this project runs locally for development, it follows cloud-native patterns and can be easily adapted to cloud deployment using managed services
 
@@ -229,7 +220,7 @@ position_reports
    - Latest version (by `consumed_at`) is kept
 
 4. **Compression:**
-   - ClickHouse default codecs (LZ4) achieve ~10x compression
+   - ClickHouse default codecs (LZ4) is optimal
    - Columnar storage minimizes I/O for analytical queries
 
 ### Transformations
@@ -243,13 +234,13 @@ position_reports
 
 2. **Marts Layer** (`models/marts/`):
    
-   **a) `vessel_activity`** (incremental model):
-   - Hourly aggregations per vessel (MMSI)
-   - Updated incrementally last 2 hours on each run (efficient)
+   - `vessel_activity`** (incremental model):
+      - Hourly aggregations per vessel (MMSI)
+      - Updated incrementally last 2 hours on each run (efficient)
    
-   **b) `vessel_last_position`** (incremental model):
-   - Latest known position for each vessel
-   - Updated incrementally last 2 hours on each run (efficient)
+   - `vessel_last_position`** (incremental model):
+      - Latest known position for each vessel
+      - Updated incrementally last 2 hours on each run (efficient)
 
 ### Orchestration
 
@@ -273,11 +264,12 @@ position_reports
 
 **Technology:** Grafana
 
-**Data Source:** ClickHouse (direct SQL queries)
+**Dashboard:**
 
-**Dashboard panels:**
-   - Vessel Map (Geomap)
-   - Vessel Status (Pie chart)
+- **Data Source:** ClickHouse (direct SQL queries)
+- **Panels:**
+   1. Vessel Map (Geomap)
+   2. Vessel Status (Pie chart)
 
 ---
 
