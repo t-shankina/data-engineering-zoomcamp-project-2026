@@ -99,7 +99,7 @@ Required for producer and dbt.
 NOTE: Run the command below in a new terminal:
 
 ```bash
-ea
+make producer
 ```
 
 *Press Ctrl+C to stop*
